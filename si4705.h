@@ -19,19 +19,19 @@
 #define SI4705_SET_PROPERTY          0x12
 #define SI4705_GET_PROPERTY          0x13
 #define SI4705_SET_CHANNEL           0x20
+#define SI4705_SEEK                  0x21
 #define SI4705_GET_CHANNEL           0x22
-
-
 
 #define MAX_SI4705_ARGS              7
 
-//functions
-//void si4705_setVolume(uint8_t volume);
-//void si4705_setChannel(void);
-//uint16_t si4705_getChannel(void);
-//uint8_t si4705_seek(uint8_t direction);
+enum SI4705_DIRECTION {
+	DOWN,
+	UP,
+};
 
+//uint8_t si4705_seek(uint8_t direction);
 void si4705_set_channel(uint16_t channel);
+uint8_t si4705_seek(uint8_t direction);
 uint16_t si4705_get_channel(void);
 void si4705_set_volume(uint8_t volume);
 uint8_t si4705_get_volume(void);

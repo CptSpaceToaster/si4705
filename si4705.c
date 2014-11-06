@@ -21,6 +21,13 @@ void si4705_init(void) {
 
 void si4705_set_channel(uint16_t channel) {
 	si4705_send_command(5, SI4705_SET_CHANNEL, 0x00, (uint8_t)(channel>>8), (uint8_t)(channel & 0xFF), 0x00);
+	_delay_ms(10);
+}
+
+uint8_t si4705_seek(uint8_t direction) {
+	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
+	_delay_ms(10);
+	return 0;
 }
 
 uint16_t si4705_get_channel(void) {
@@ -62,7 +69,7 @@ void si4705_powerOn() {
 #endif
 	
 	//Using External Headphone Antenna
-	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x07, 0x00, 0x00);
+	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x07, 0x00, 0x01);
 	
 }
 
@@ -102,15 +109,15 @@ uint8_t si4705_pull() {
 	 uint8_t err;
 	 err = i2c_start(SI4705_ADDR | I2C_READ);
 	 if (err) {
-		 printf("It's not there\n");
+//		 printf("It's not there\n");
 		 return 2;
 	 }
-	 printf("Fetching Registers... \n");
+//	 printf("Fetching Registers... \n");
 	 for(int i = 0; i < 7; i++) { 
 		shadow_registers[i] = i2c_readAck();
-		printf("%02x\n", shadow_registers[i]);
+//		printf("%02x\n", shadow_registers[i]);
 	 }
 	 shadow_registers[7] = i2c_readNak();
-	 printf("%02x\n", shadow_registers[7]);
+//	 printf("%02x\n", shadow_registers[7]);
 	 return 0;
  }
