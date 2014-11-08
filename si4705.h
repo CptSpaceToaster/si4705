@@ -23,6 +23,10 @@
 #define SI4705_GET_CHANNEL           0x22
 
 #define MAX_SI4705_ARGS              7
+#define SI4705_FM_HIGH               1089
+#define SI4705_FM_LOW                881
+#define SI4705_VOL_HIGH              63
+#define SI4705_VOL_LOW               0
 
 enum SI4705_DIRECTION {
 	DOWN,
@@ -30,10 +34,10 @@ enum SI4705_DIRECTION {
 };
 
 //uint8_t si4705_seek(uint8_t direction);
-void si4705_set_channel(uint16_t channel);
-void si4705_seek(uint8_t direction);
+uint8_t si4705_set_channel(uint16_t channel);
+uint8_t si4705_seek(uint8_t direction);
+uint8_t si4705_set_volume(uint8_t volume);
 uint16_t si4705_get_channel(void);
-void si4705_set_volume(uint8_t volume);
 uint8_t si4705_get_volume(void);
 
 void si4705_init(void);
