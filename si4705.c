@@ -24,16 +24,15 @@ void si4705_set_channel(uint16_t channel) {
 	_delay_ms(10);
 }
 
-uint8_t si4705_seek(uint8_t direction) {
+void si4705_seek(uint8_t direction) {
 	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
 	_delay_ms(10);
-	return 0;
 }
 
 uint16_t si4705_get_channel(void) {
 	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
 	si4705_pull();
-	return (shadow_registers[2]<<8 | shadow_registers[2]);
+	return (shadow_registers[2]<<8 | shadow_registers[3]);
 }
 
 void si4705_set_volume(uint8_t volume) {
@@ -68,7 +67,7 @@ void si4705_powerOn() {
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x00, 0x00, 0x00);
 #endif
 	
-	//Using External Headphone Antenna
+	//Using External Headphone Antenna (0x01 = Use TXO/LPI) (0x00 = Use FMI)
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x07, 0x00, 0x01);
 	
 }

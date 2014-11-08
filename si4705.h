@@ -31,7 +31,7 @@ enum SI4705_DIRECTION {
 
 //uint8_t si4705_seek(uint8_t direction);
 void si4705_set_channel(uint16_t channel);
-uint8_t si4705_seek(uint8_t direction);
+void si4705_seek(uint8_t direction);
 uint16_t si4705_get_channel(void);
 void si4705_set_volume(uint8_t volume);
 uint8_t si4705_get_volume(void);
