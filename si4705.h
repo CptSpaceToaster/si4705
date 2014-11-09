@@ -2,7 +2,7 @@
  * si4705.h
  *
  * Created: 10/27/2014 7:01:16 PM
- *  Author: CaptainSpaceToaster
+ * Author: CaptainSpaceToaster
  */ 
 #ifndef SI4705_H
 #define SI4705_H
@@ -23,7 +23,7 @@
 #define SI4705_GET_CHANNEL           0x22
 
 #define MAX_SI4705_ARGS              7
-#define SI4705_FM_HIGH               1089
+#define SI4705_FM_HIGH               1079
 #define SI4705_FM_LOW                881
 #define SI4705_VOL_HIGH              63
 #define SI4705_VOL_LOW               0

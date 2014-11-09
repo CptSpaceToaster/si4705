@@ -2,7 +2,7 @@
  * si4705.c
  *
  * Created: 10/27/2014 7:01:16 PM
- *  Author: CaptainSpaceToaster
+ * Author: CaptainSpaceToaster
  */ 
 
 #include <stdio.h>
@@ -31,17 +31,18 @@ uint8_t si4705_set_channel(uint16_t channel) {
 
 /* Takes in an integer 0 = DOWN, or 1 = UP (These are enumerated in the header file for readability) */
 uint8_t si4705_seek(uint8_t direction) {
-	if (direction != DOWN || direction != UP) {
+	if (direction > UP) {
 		//cannot tune sideways... try that in another dimension
 		return 1;
 	}
+	printf(direction?"UP\n":"DOWN\n");
 	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
 	_delay_ms(10);
 	return 0;
 }
 
 /* Takes in an integer volume from 0 to 63 */
-void si4705_set_volume(uint8_t volume) {
+uint8_t si4705_set_volume(uint8_t volume) {
 	if (volume > SI4705_VOL_HIGH || volume < SI4705_VOL_LOW) {
 		//volume out of range
 		return 1;
@@ -95,7 +96,7 @@ void si4705_powerOn() {
  * The rest: The bytes being sent out.
  * 
  * exe: The Power-up Command:
-  * si4705_send_command(3, 0x01, 0xD0, 0x05); */
+ * si4705_send_command(3, 0x01, 0xD0, 0x05); */
 uint8_t si4705_send_command(uint8_t howmany, ...) {
 	uint8_t err;
 	va_list ap;
@@ -113,14 +114,14 @@ uint8_t si4705_send_command(uint8_t howmany, ...) {
 	
 	for(int i = 0; i < howmany; i++) {
 		char c = va_arg(ap, int);
-		printf("%02x ", c);
+//		printf("%02x ", c);
 		err = i2c_write(c);
 		if (err) {
-			printf("could not write byte... no ack\n");
+//			printf("could not write byte... no ack\n");
 			return 1;
 		}
 	}
-	printf("\n");
+//	printf("\n");
 	i2c_stop();
 	va_end(ap);
 	_delay_ms(10);
