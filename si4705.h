@@ -55,8 +55,9 @@ uint8_t si4705_get_volume(void);
 void si4705_init(void);
 void si4705_power_on(void);
 void si4705_power_off(void);
+#define si4705_pull() si4705_pull_n(8) //Here for backwards compatibility
 uint8_t si4705_send_command(uint8_t howmany, ...);
-uint8_t si4705_pull();
+uint8_t si4705_pull_n(uint8_t howmany);
 
 
 #endif //SI4705_H

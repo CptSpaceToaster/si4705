@@ -129,34 +129,29 @@ uint8_t si4705_send_command(uint8_t howmany, ...) {
 	
 	for(int i = 0; i < howmany; i++) {
 		char c = va_arg(ap, int);
-//		printf("%02x ", c);
 		err = i2c_write(c);
 		if (err) {
-//			printf("could not write byte... no ack\n");
+			//Error, device did not ack (not present?)
 			return 1;
 		}
 	}
-//	printf("\n");
 	i2c_stop();
 	va_end(ap);
 	_delay_ms(10);
 	return 0;
 }
 
-//Reads 8 bytes from the device... fills shadow_registers with the data!
-uint8_t si4705_pull() {
+//Reads back a number of bytes, and stores the results in shadow_registers
+uint8_t si4705_pull_n(uint8_t howmany) {
 	 uint8_t err;
 	 err = i2c_start(SI4705_ADDR | I2C_READ);
 	 if (err) {
-//		 printf("It's not there\n");
+		 //Error, device did not ack
 		 return 2;
 	 }
-//	 printf("Fetching Registers... \n");
 	 for(int i = 0; i < 7; i++) { 
 		shadow_registers[i] = i2c_readAck();
-//		printf("%02x\n", shadow_registers[i]);
 	 }
 	 shadow_registers[7] = i2c_readNak();
-//	 printf("%02x\n", shadow_registers[7]);
 	 return 0;
  }
