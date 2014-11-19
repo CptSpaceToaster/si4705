@@ -7,7 +7,17 @@
 #ifndef SI4705_H
 #define SI4705_H
 
-//Put defines here
+//Structures
+typedef struct status {
+	uint8_t valid;
+	uint16_t tuneFrequency;
+	uint8_t rssi;
+	uint8_t snr;
+	uint8_t multipath;
+	uint8_t antenaCap;
+} status_t;
+
+//Defines
 #define SI4705_RST_PIN               4
 #define SET_SI4705_RESET             PORTB |= _BV(SI4705_RST_PIN)
 #define CLEAR_SI4705_RESET           PORTB &= ~_BV(SI4705_RST_PIN)
@@ -34,11 +44,12 @@ enum SI4705_DIRECTION {
 	UP,
 };
 
-//uint8_t si4705_seek(uint8_t direction);
 uint8_t si4705_set_channel(uint16_t channel);
 uint8_t si4705_seek(uint8_t direction);
 uint8_t si4705_set_volume(uint8_t volume);
 uint16_t si4705_get_channel(void);
+void si4705_get_status(status_t *status);
+
 uint8_t si4705_get_volume(void);
 
 void si4705_init(void);

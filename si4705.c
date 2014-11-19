@@ -58,6 +58,17 @@ uint16_t si4705_get_channel(void) {
 	return (shadow_registers[2]<<8 | shadow_registers[3])/10;
 }
 
+void si4705_get_status(status_t *status) {
+	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
+	si4705_pull();
+	status->valid = shadow_registers[1];
+	status->tuneFrequency = (shadow_registers[2]<<8 | shadow_registers[3])/10;
+	status->rssi = shadow_registers[4];
+	status->snr = shadow_registers[5];
+	status->multipath = shadow_registers[6];
+	status->antenaCap = shadow_registers[7];
+}
+
 /* Returns an integer volume from 0 to 63 */
 uint8_t si4705_get_volume(void) {
 	si4705_send_command(4, SI4705_GET_PROPERTY, 0x00, 0x40, 0x00);
