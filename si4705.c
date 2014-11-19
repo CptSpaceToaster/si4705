@@ -65,7 +65,11 @@ uint8_t si4705_get_volume(void) {
 	return shadow_registers[3];
 }
 
-void si4705_powerOn() {
+void si4705_power_off() {
+	si4705_send_command(1, SI4705_POWER_DOWN);
+}
+
+void si4705_power_on() {
 	// Power on, use an external 32.768 crystal oscillator, enable CTS interrupt, and GPO2 output enable
 	si4705_send_command(3, SI4705_POWERUP, 0xD0, 0x05);
 	_delay_ms(500); //Wait for oscillator to settle

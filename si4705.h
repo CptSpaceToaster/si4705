@@ -16,6 +16,7 @@
 //The other address is 0x63
 
 #define SI4705_POWERUP               0x01
+#define SI4705_POWER_DOWN            0x11
 #define SI4705_SET_PROPERTY          0x12
 #define SI4705_GET_PROPERTY          0x13
 #define SI4705_SET_CHANNEL           0x20
@@ -41,7 +42,8 @@ uint16_t si4705_get_channel(void);
 uint8_t si4705_get_volume(void);
 
 void si4705_init(void);
-void si4705_powerOn(void);
+void si4705_power_on(void);
+void si4705_power_off(void);
 uint8_t si4705_send_command(uint8_t howmany, ...);
 uint8_t si4705_pull();
 
