@@ -34,6 +34,7 @@ typedef struct status {
 #define SI4705_GET_CHANNEL           0x22
 
 #define MAX_SI4705_ARGS              7
+#define SHADOW_REGISTER_SIZE         8
 #define SI4705_FM_HIGH               1079
 #define SI4705_FM_LOW                881
 #define SI4705_VOL_HIGH              63

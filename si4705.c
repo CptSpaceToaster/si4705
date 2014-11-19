@@ -11,7 +11,7 @@
 #include "../twi/i2cmaster.h"
 #include "util/delay.h"
 
-uint8_t shadow_registers[8]; // for reading from the chip
+uint8_t shadow_registers[SHADOW_REGISTER_SIZE]; // for reading from the chip
 
 void si4705_init(void) {
 	CLEAR_SI4705_RESET;
@@ -54,13 +54,13 @@ uint8_t si4705_set_volume(uint8_t volume) {
 /* Returns an integer frequency from 881 (FM:88.1) to 1089 (FM:108.9) */
 uint16_t si4705_get_channel(void) {
 	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
-	si4705_pull();
+	si4705_pull_n(4);
 	return (shadow_registers[2]<<8 | shadow_registers[3])/10;
 }
 
 void si4705_get_status(status_t *status) {
 	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
-	si4705_pull();
+	si4705_pull_n(8);
 	status->valid = shadow_registers[1];
 	status->tuneFrequency = (shadow_registers[2]<<8 | shadow_registers[3])/10;
 	status->rssi = shadow_registers[4];
@@ -72,7 +72,7 @@ void si4705_get_status(status_t *status) {
 /* Returns an integer volume from 0 to 63 */
 uint8_t si4705_get_volume(void) {
 	si4705_send_command(4, SI4705_GET_PROPERTY, 0x00, 0x40, 0x00);
-	si4705_pull();
+	si4705_pull_4();
 	return shadow_registers[3];
 }
 
@@ -149,9 +149,9 @@ uint8_t si4705_pull_n(uint8_t howmany) {
 		 //Error, device did not ack
 		 return 2;
 	 }
-	 for(int i = 0; i < 7; i++) { 
+	 for(int i = 0; i < howmany; i++) { 
 		shadow_registers[i] = i2c_readAck();
 	 }
-	 shadow_registers[7] = i2c_readNak();
+	 shadow_registers[howmany] = i2c_readNak();
 	 return 0;
  }
