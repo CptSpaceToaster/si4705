@@ -87,7 +87,7 @@ void si4705_power_on() {
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x13, 0x02, 0x00, 0x00);
 	
 	
-	// FM DE-Emphasis apparently used in Europe, Japan, and Australia
+	// FM DE-Emphasis apparently used in Europe, Japan, and Australia.  Can I get someone over yonder to test this for me?
 #ifdef IN_EUROPE
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x00, 0x00, 0x00);
 #endif
