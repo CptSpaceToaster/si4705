@@ -72,7 +72,7 @@ void si4705_get_status(status_t *status) {
 /* Returns an integer volume from 0 to 63 */
 uint8_t si4705_get_volume(void) {
 	si4705_send_command(4, SI4705_GET_PROPERTY, 0x00, 0x40, 0x00);
-	si4705_pull_4();
+	si4705_pull_n(4);
 	return shadow_registers[3];
 }
 
@@ -149,9 +149,9 @@ uint8_t si4705_pull_n(uint8_t howmany) {
 		 //Error, device did not ack
 		 return 2;
 	 }
-	 for(int i = 0; i < howmany; i++) { 
+	 for(int i = 0; i < howmany-1; i++) { 
 		shadow_registers[i] = i2c_readAck();
 	 }
-	 shadow_registers[howmany] = i2c_readNak();
+	 shadow_registers[howmany-1] = i2c_readNak();
 	 return 0;
  }
