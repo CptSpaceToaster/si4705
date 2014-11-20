@@ -25,7 +25,7 @@ uint8_t si4705_set_channel(uint16_t channel) {
 		return 1;
 	}
 	si4705_send_command(5, SI4705_SET_CHANNEL, 0x00, (uint8_t)((channel*10)>>8), (uint8_t)((channel*10) & 0xFF), 0x00);
-	_delay_ms(10);
+	_delay_ms(1);
 	return 0;
 }
 
