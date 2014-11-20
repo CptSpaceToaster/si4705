@@ -92,18 +92,16 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 		//Get the group ID
 		//If the ID is for program service, block B has text offset and block D has two chars
 		uint16_t text_offset;
-		if ((shadow_registers[6]&0xF0) == 0) { //Group ID, if 0 then we have received program service info.  If it is 2, it is Radio Text.
+		if ((shadow_registers[6]&0xF0) == 0x00) { //Group ID, if 0x00 then we have received program service info.  If it is 0x20, it is Radio Text.
 			text_offset = (shadow_registers[7]&0x03) << 1;
 			program_service[text_offset+0] = shadow_registers[10];
 			program_service[text_offset+1] = shadow_registers[11];
-			//printf("%c%c\n", shadow_registers[10], shadow_registers[11]);
-		} else if ((shadow_registers[6]&0xF0) == 2) {
+		} else if ((shadow_registers[6]&0xF0) == 0x20) {
 			text_offset = (shadow_registers[7]&0x0F) << 1;
 			radio_text[text_offset+0] = shadow_registers[10];
 			radio_text[text_offset+1] = shadow_registers[11];
 			radio_text[text_offset+2] = shadow_registers[12];
 			radio_text[text_offset+3] = shadow_registers[13];
-			//printf("%c%c%c%c\n", shadow_registers[10], shadow_registers[11], shadow_registers[12], shadow_registers[13]);
 		}
 	} while (more_is_available);
 }
