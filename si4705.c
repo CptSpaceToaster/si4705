@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include "si4705.h"
 #include "../twi/i2cmaster.h"
 #include "util/delay.h"
@@ -84,51 +85,47 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 		if ((shadow_registers[12]&0x0C) == 0x0C) {
 			//Uncorrectable errors in Block C
 			//printf("Bad C\n");
-			return;
-		}
-		if ((shadow_registers[12]&0x03) == 0x03) {
+		} else if ((shadow_registers[12]&0x03) == 0x03) {
 			//Uncorrectable errors in Block D
 			//printf("Bad D\n");
 			return;
-		}
-		//Get the group ID
-		//If the ID is for program service, block B has text offset and block D has two chars
-		uint16_t text_offset;
-		uint8_t groupt_ID = shadow_registers[6] >> 4;
+		} else {
+			//Get the group ID
+			//If the ID is for program service, block B has text offset and block D has two chars
+			uint16_t text_offset;
+			uint8_t groupt_ID = shadow_registers[6] >> 4;
 		
-		switch(groupt_ID) {
-			case SI4705_RDS_PROGRAM_SERVICE:
-			{	
-				text_offset = (shadow_registers[7]&0x03) << 1;
-				program_service[text_offset+0] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
-				program_service[text_offset+1] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
-			};
-			break;
+			switch(groupt_ID) {
+				case SI4705_RDS_PROGRAM_SERVICE:
+				{	
+					text_offset = (shadow_registers[7]&0x03) << 1;
+					program_service[text_offset+0] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
+					program_service[text_offset+1] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
+				};
+				break;
 		
-			case SI4705_RDS_RADIO_TEXT:
-			{
-				text_offset = (shadow_registers[7]&0x0F) << 2;
-				radio_text[text_offset+0] = shadow_registers[8]=='\r'?' ':shadow_registers[8];
-				radio_text[text_offset+1] = shadow_registers[9]=='\r'?' ':shadow_registers[9];
-				radio_text[text_offset+2] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
-				radio_text[text_offset+3] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
-			};
-			break;
+				case SI4705_RDS_RADIO_TEXT:
+				{
+					text_offset = (shadow_registers[7]&0x0F) << 2;
+					radio_text[text_offset+0] = shadow_registers[8]=='\r'?' ':shadow_registers[8];
+					radio_text[text_offset+1] = shadow_registers[9]=='\r'?' ':shadow_registers[9];
+					radio_text[text_offset+2] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
+					radio_text[text_offset+3] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
+				};
+				break;
+			}
 		}
 	} while (more_is_available);
-	
-	uint8_t str_index;
-	str_index = 8;
-	do {
-		program_service[str_index] = '\0';
-		str_index--;
-	} while (program_service[str_index] == ' ' || program_service[str_index] == '\0');
-	
-	str_index = 64;
+	uint8_t str_index = 64;
 	do {
 		radio_text[str_index] = '\0';
+		if (str_index == 0) break;
 		str_index--;
 	} while (radio_text[str_index] == ' ' || radio_text[str_index] == '\0');
+	//Cuts down the Radio_Text string if it has some extra spaces/nulls at the end
+	str_index = strlen(radio_text);
+	radio_text[str_index] = ' ';// puts an extra space at the end of the string
+	radio_text[str_index+1] = '\0';// reterminates string
 }
 
 /* Returns an integer volume from 0 to 63 */
