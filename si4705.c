@@ -70,7 +70,9 @@ void si4705_get_status(status_t *status) {
 	status->antenaCap = shadow_registers[7];
 }
 	
-/* Read RDS values and return Program_Service (9 character string, null inclusive) and Radio Text (65 character string, null inclusive) */
+/* Read RDS values and return Program_Service (9 character string, null inclusive) and Radio Text (65 character string, null inclusive) 
+ * To make the best use of the string filtering at the end of this function, fill the strings with spaces that end with a null terminator
+ * everytime you change station */
 void si4705_get_rdbs(char *program_service, char *radio_text) {
 	uint8_t more_is_available = 0;
 	//printf("in get rbds\n");
