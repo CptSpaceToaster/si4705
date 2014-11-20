@@ -25,6 +25,8 @@ typedef struct status {
 #define SI4705_ADDR                  (0x11<<1) //device address shifted over one
 //The other address is 0x63
 
+#define USING_RDS
+
 #define SI4705_POWERUP               0x01
 #define SI4705_POWER_DOWN            0x11
 #define SI4705_SET_PROPERTY          0x12
@@ -36,7 +38,7 @@ typedef struct status {
 #define SI4705_GET_RDS_STATUS        0x24
 
 #define MAX_SI4705_ARGS              7
-#define SHADOW_REGISTER_SIZE         8
+#define SHADOW_REGISTER_SIZE         13
 #define SI4705_FM_HIGH               1079
 #define SI4705_FM_LOW                881
 #define SI4705_VOL_HIGH              63

@@ -36,7 +36,7 @@ uint8_t si4705_seek(uint8_t direction) {
 		//cannot tune sideways... try that in another dimension
 		return 1;
 	}
-	printf(direction?"UP\n":"DOWN\n");
+	//printf(direction?"UP\n":"DOWN\n");
 	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
 	_delay_ms(1);
 	return 0;
@@ -73,6 +73,7 @@ void si4705_get_status(status_t *status) {
 /* Read RDS values and return Program_Service (9 character string, null inclusive) and Radio Text (65 character string, null inclusive) */
 void si4705_get_rdbs(char *program_service, char *radio_text) {
 	uint8_t more_is_available = 0;
+	//printf("in get rbds\n");
 	do {
 		si4705_send_command(2, SI4705_GET_RDS_STATUS, 0x01);
 		si4705_pull_n(13);
@@ -80,25 +81,29 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 		//Verify that blocks C and D have valid data (don't use it if they don't)
 		if ((shadow_registers[12]&0x0C) == 0x0C) {
 			//Uncorrectable errors in Block C
+			//printf("Bad C\n");
 			return;
 		}
 		if ((shadow_registers[12]&0x03) == 0x03) {
 			//Uncorrectable errors in Block D
+			//printf("Bad D\n");
 			return;
 		}
 		//Get the group ID
 		//If the ID is for program service, block B has text offset and block D has two chars
 		uint16_t text_offset;
-		if ((shadow_registers[6]&0xF0) == 0) { //Group ID, if 0 then we have received program service info.  If it is 1, it is Radio Text.
+		if ((shadow_registers[6]&0xF0) == 0) { //Group ID, if 0 then we have received program service info.  If it is 2, it is Radio Text.
 			text_offset = (shadow_registers[7]&0x03) << 1;
 			program_service[text_offset+0] = shadow_registers[10];
 			program_service[text_offset+1] = shadow_registers[11];
-		} else {
+			//printf("%c%c\n", shadow_registers[10], shadow_registers[11]);
+		} else if ((shadow_registers[6]&0xF0) == 2) {
 			text_offset = (shadow_registers[7]&0x0F) << 1;
 			radio_text[text_offset+0] = shadow_registers[10];
 			radio_text[text_offset+1] = shadow_registers[11];
 			radio_text[text_offset+2] = shadow_registers[12];
 			radio_text[text_offset+3] = shadow_registers[13];
+			//printf("%c%c%c%c\n", shadow_registers[10], shadow_registers[11], shadow_registers[12], shadow_registers[13]);
 		}
 	} while (more_is_available);
 }
