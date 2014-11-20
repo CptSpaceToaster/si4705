@@ -98,18 +98,18 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 			case SI4705_RDS_PROGRAM_SERVICE:
 			{	
 				text_offset = (shadow_registers[7]&0x03) << 1;
-				program_service[text_offset+0] = shadow_registers[10];
-				program_service[text_offset+1] = shadow_registers[11];
+				program_service[text_offset+0] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
+				program_service[text_offset+1] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
 			};
 			break;
 		
 			case SI4705_RDS_RADIO_TEXT:
 			{
 				text_offset = (shadow_registers[7]&0x0F) << 2;
-				radio_text[text_offset+0] = shadow_registers[8];
-				radio_text[text_offset+1] = shadow_registers[9];
-				radio_text[text_offset+2] = shadow_registers[10];
-				radio_text[text_offset+3] = shadow_registers[11];
+				radio_text[text_offset+0] = shadow_registers[8]=='\r'?' ':shadow_registers[8];
+				radio_text[text_offset+1] = shadow_registers[9]=='\r'?' ':shadow_registers[9];
+				radio_text[text_offset+2] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
+				radio_text[text_offset+3] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
 			};
 			break;
 		}
@@ -121,6 +121,7 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 		program_service[str_index] = '\0';
 		str_index--;
 	} while (program_service[str_index] == ' ' || program_service[str_index] == '\0');
+	
 	str_index = 64;
 	do {
 		radio_text[str_index] = '\0';
