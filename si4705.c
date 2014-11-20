@@ -18,6 +18,7 @@ void si4705_init(void) {
 	_delay_ms(1);
 	SET_SI4705_RESET;
 }
+
 /* Takes in an integer frequency from 881 (FM:88.1) to 1089 (FM:108.9) */
 uint8_t si4705_set_channel(uint16_t channel) {
 	if (channel > SI4705_FM_HIGH || channel < SI4705_FM_LOW) {
@@ -68,6 +69,39 @@ void si4705_get_status(status_t *status) {
 	status->multipath = shadow_registers[6];
 	status->antenaCap = shadow_registers[7];
 }
+	
+/* Read RDS values and return Program_Service (9 character string, null inclusive) and Radio Text (65 character string, null inclusive) */
+void si4705_get_rdbs(char *program_service, char *radio_text) {
+	uint8_t more_is_available = 0;
+	do {
+		si4705_send_command(2, SI4705_GET_RDS_STATUS, 0x01);
+		si4705_pull_n(13);
+		more_is_available = shadow_registers[3];
+		//Verify that blocks C and D have valid data (don't use it if they don't)
+		if ((shadow_registers[12]&0x0C) == 0x0C) {
+			//Uncorrectable errors in Block C
+			return;
+		}
+		if ((shadow_registers[12]&0x03) == 0x03) {
+			//Uncorrectable errors in Block D
+			return;
+		}
+		//Get the group ID
+		//If the ID is for program service, block B has text offset and block D has two chars
+		uint16_t text_offset;
+		if ((shadow_registers[6]&0xF0) == 0) { //Group ID, if 0 then we have received program service info.  If it is 1, it is Radio Text.
+			text_offset = (shadow_registers[7]&0x03) << 1;
+			program_service[text_offset+0] = shadow_registers[10];
+			program_service[text_offset+1] = shadow_registers[11];
+		} else {
+			text_offset = (shadow_registers[7]&0x0F) << 1;
+			radio_text[text_offset+0] = shadow_registers[10];
+			radio_text[text_offset+1] = shadow_registers[11];
+			radio_text[text_offset+2] = shadow_registers[12];
+			radio_text[text_offset+3] = shadow_registers[13];
+		}
+	} while (more_is_available);
+}
 
 /* Returns an integer volume from 0 to 63 */
 uint8_t si4705_get_volume(void) {
@@ -103,6 +137,13 @@ void si4705_power_on() {
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x00, 0x00, 0x00);
 #endif
 	
+#ifdef USING_RDS
+	//Set the FM_RDS_INT_FIFO_COUNT (buffer) to store a maximum of 25 RDS groups
+	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x15, 0x01, 0x00, 25); //or hexadecimal 0x19... take your pick
+	//Set RDS to accept data if it can correct it (5 corrected bit errors max) and enable processing
+	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x15, 0x02, 0xAA, 01);
+#endif
+
 	// Using External Headphone Antenna (0x01 = Use TXO/LPI) (0x00 = Use FMI)
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x07, 0x00, 0x01);
 }

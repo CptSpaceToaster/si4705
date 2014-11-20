@@ -33,6 +33,7 @@ typedef struct status {
 #define SI4705_SEEK                  0x21
 #define SI4705_GET_CHANNEL           0x22
 #define SI4705_GET_RSQ_STATUS        0x23
+#define SI4705_GET_RDS_STATUS        0x24
 
 #define MAX_SI4705_ARGS              7
 #define SHADOW_REGISTER_SIZE         8
@@ -51,6 +52,7 @@ uint8_t si4705_seek(uint8_t direction);
 uint8_t si4705_set_volume(uint8_t volume);
 uint16_t si4705_get_channel(void);
 void si4705_get_status(status_t *status);
+void si4705_get_rdbs(char *program_service, char *radio_text);
 
 uint8_t si4705_get_volume(void);
 
