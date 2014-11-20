@@ -37,7 +37,7 @@ uint8_t si4705_seek(uint8_t direction) {
 	}
 	printf(direction?"UP\n":"DOWN\n");
 	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
-	_delay_ms(10);
+	_delay_ms(1);
 	return 0;
 }
 
