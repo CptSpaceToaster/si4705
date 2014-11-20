@@ -37,7 +37,6 @@ uint8_t si4705_seek(uint8_t direction) {
 		//cannot tune sideways... try that in another dimension
 		return 1;
 	}
-	//printf(direction?"UP\n":"DOWN\n");
 	si4705_send_command(2, SI4705_SEEK, direction?0x0C:0x04);
 	_delay_ms(1);
 	return 0;
@@ -76,7 +75,6 @@ void si4705_get_status(status_t *status) {
  * everytime you change station */
 void si4705_get_rdbs(char *program_service, char *radio_text) {
 	uint8_t more_is_available = 0;
-	//printf("in get rbds\n");
 	do {
 		si4705_send_command(2, SI4705_GET_RDS_STATUS, 0x01);
 		si4705_pull_n(13);
@@ -84,10 +82,8 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 		//Verify that blocks C and D have valid data (don't use it if they don't)
 		if ((shadow_registers[12]&0x0C) == 0x0C) {
 			//Uncorrectable errors in Block C
-			//printf("Bad C\n");
 		} else if ((shadow_registers[12]&0x03) == 0x03) {
 			//Uncorrectable errors in Block D
-			//printf("Bad D\n");
 			return;
 		} else {
 			//Get the group ID
@@ -189,7 +185,7 @@ uint8_t si4705_send_command(uint8_t howmany, ...) {
 	
 	err = i2c_start(SI4705_ADDR | I2C_WRITE);
 	if (err) {
-		printf("device not ack\n");
+		//Error, device did not ack (not present?)
 		return 2;
 	}
 	
@@ -197,7 +193,7 @@ uint8_t si4705_send_command(uint8_t howmany, ...) {
 		char c = va_arg(ap, int);
 		err = i2c_write(c);
 		if (err) {
-			//Error, device did not ack (not present?)
+			//Error, device did not ack (don't know how you got here... did you bump a wire?)
 			return 1;
 		}
 	}
