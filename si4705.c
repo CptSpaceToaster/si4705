@@ -59,7 +59,7 @@ uint16_t si4705_get_channel(void) {
 }
 
 void si4705_get_status(status_t *status) {
-	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
+	si4705_send_command(2, SI4705_GET_RSQ_STATUS, 0x01);
 	si4705_pull_n(8);
 	status->valid = shadow_registers[1];
 	status->tuneFrequency = (shadow_registers[2]<<8 | shadow_registers[3])/10;
