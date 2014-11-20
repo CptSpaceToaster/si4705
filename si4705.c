@@ -107,10 +107,10 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 				case SI4705_RDS_RADIO_TEXT:
 				{
 					text_offset = (shadow_registers[7]&0x0F) << 2;
-					radio_text[text_offset+0] = shadow_registers[8]=='\r'?' ':shadow_registers[8];
-					radio_text[text_offset+1] = shadow_registers[9]=='\r'?' ':shadow_registers[9];
-					radio_text[text_offset+2] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
-					radio_text[text_offset+3] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
+					radio_text[text_offset+0+DISPLAY_OFFSET] = shadow_registers[8]=='\r'?' ':shadow_registers[8];
+					radio_text[text_offset+1+DISPLAY_OFFSET] = shadow_registers[9]=='\r'?' ':shadow_registers[9];
+					radio_text[text_offset+2+DISPLAY_OFFSET] = shadow_registers[10]=='\r'?' ':shadow_registers[10];
+					radio_text[text_offset+3+DISPLAY_OFFSET] = shadow_registers[11]=='\r'?' ':shadow_registers[11];
 				};
 				break;
 			}
@@ -119,7 +119,7 @@ void si4705_get_rdbs(char *program_service, char *radio_text) {
 	uint8_t str_index = 64;
 	do {
 		radio_text[str_index] = '\0';
-		if (str_index == 0) break;
+		if (str_index == DISPLAY_OFFSET) break;
 		str_index--;
 	} while (radio_text[str_index] == ' ' || radio_text[str_index] == '\0');
 	//Cuts down the Radio_Text string if it has some extra spaces/nulls at the end

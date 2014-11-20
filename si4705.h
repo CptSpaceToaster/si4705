@@ -26,6 +26,7 @@ typedef struct status {
 //The other address is 0x63
 
 #define USING_RDS
+#define DISPLAY_OFFSET               11
 
 #define SI4705_POWERUP               0x01
 #define SI4705_POWER_DOWN            0x11
