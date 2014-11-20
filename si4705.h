@@ -37,6 +37,9 @@ typedef struct status {
 #define SI4705_GET_RSQ_STATUS        0x23
 #define SI4705_GET_RDS_STATUS        0x24
 
+#define SI4705_RDS_PROGRAM_SERVICE   0
+#define SI4705_RDS_RADIO_TEXT        2
+
 #define MAX_SI4705_ARGS              7
 #define SHADOW_REGISTER_SIZE         13
 #define SI4705_FM_HIGH               1079
