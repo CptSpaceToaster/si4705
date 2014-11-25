@@ -54,13 +54,13 @@ uint8_t si4705_set_volume(uint8_t volume) {
 
 /* Returns an integer frequency from 881 (FM:88.1) to 1089 (FM:108.9) */
 uint16_t si4705_get_channel(void) {
-	si4705_send_command(2, SI4705_GET_CHANNEL, 0x01);
+	si4705_send_command(2, SI4705_GET_TUNE_STATUS, 0x01);
 	si4705_pull_n(4);
 	return (shadow_registers[2]<<8 | shadow_registers[3])/10;
 }
 
-void si4705_get_status(status_t *status) {
-	si4705_send_command(2, SI4705_GET_RSQ_STATUS, 0x01);
+void si4705_get_tune_status(si4705_tune_status_t *status) {
+	si4705_send_command(2, SI4705_GET_TUNE_STATUS, 0x01);
 	si4705_pull_n(8);
 	status->valid = shadow_registers[1];
 	status->tuneFrequency = (shadow_registers[2]<<8 | shadow_registers[3])/10;
@@ -68,6 +68,28 @@ void si4705_get_status(status_t *status) {
 	status->snr = shadow_registers[5];
 	status->multipath = shadow_registers[6];
 	status->antenaCap = shadow_registers[7];
+}
+
+void si4705_get_rsq_status(si4705_rsq_status_t *status) {
+	si4705_send_command(2, SI4705_GET_RSQ_STATUS, 0x01);
+	si4705_pull_n(8);
+	status->blendint = (shadow_registers[1] & (1<<7)) != 0;
+	status->multhint = (shadow_registers[1] & (1<<5)) != 0;
+	status->multlint = (shadow_registers[1] & (1<<4)) != 0;
+	status->snrhint  = (shadow_registers[1] & (1<<3)) != 0;
+	status->snrlint  = (shadow_registers[1] & (1<<2)) != 0;
+	status->rssihint = (shadow_registers[1] & (1<<1)) != 0;
+	status->rssilint = (shadow_registers[1] & (1<<0)) != 0;
+	status->smute    = (shadow_registers[2] & (1<<3)) != 0;
+	status->afcrl    = (shadow_registers[2] & (1<<1)) != 0;
+	status->valid    = (shadow_registers[2] & (1<<0)) != 0;
+	status->pilot    = (shadow_registers[3] & (1<<7)) != 0;
+	
+	status->stblend          = shadow_registers[3] & 0x7F;
+	status->rssi             = shadow_registers[4];
+	status->snr              = shadow_registers[5];
+	status->multipath        = shadow_registers[6];
+	status->frequency_offset = shadow_registers[7];
 }
 	
 /* Read RDS values and return Program_Service (9 character string, null inclusive) and Radio Text (65 character string, null inclusive) 
@@ -138,7 +160,8 @@ void si4705_power_off() {
 void si4705_power_on() {
 	// Power on, use an external 32.768 crystal oscillator, enable CTS interrupt, and GPO2 output enable
 	si4705_send_command(3, SI4705_POWERUP, 0xD0, 0x05);
-	_delay_ms(500); //Wait for oscillator to settle
+	// Wait for oscillator to settle
+	_delay_ms(500);
 	
 	// Disable "periodic noise" from silicon labs debug setting... I think?
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0xFF, 0x00, 0x00, 0x00);
@@ -159,14 +182,17 @@ void si4705_power_on() {
 #endif
 	
 #ifdef USING_RDS
-	//Set the FM_RDS_INT_FIFO_COUNT (buffer) to store a maximum of 25 RDS groups
-	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x15, 0x01, 0x00, 25); //or hexadecimal 0x19... take your pick
-	//Set RDS to accept data if it can correct it (5 corrected bit errors max) and enable processing
+	// Set the FM_RDS_INT_FIFO_COUNT (buffer) to store a maximum of 10 RDS groups
+	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x15, 0x01, 0x00, 10); //or hexadecimal 0x09... take your pick
+	// Set RDS to accept data if it can correct it (5 corrected bit errors max) and enable processing
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x15, 0x02, 0xAA, 01);
 #endif
 
 	// Using External Headphone Antenna (0x01 = Use TXO/LPI) (0x00 = Use FMI)
 	si4705_send_command(6, SI4705_SET_PROPERTY, 0x00, 0x11, 0x07, 0x00, 0x01);
+	
+	// Give the system a bit more time to get ready... I found this necessary to get a proper tune the first time
+	_delay_ms(500);
 }
 
 /* First argument: Number of bytes being sent,

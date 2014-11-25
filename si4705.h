@@ -7,15 +7,36 @@
 #ifndef SI4705_H
 #define SI4705_H
 
+#include <stdbool.h>
+
 //Structures
-typedef struct status {
+typedef struct si4705_tune_status {
 	uint8_t valid;
 	uint16_t tuneFrequency;
 	uint8_t rssi;
 	uint8_t snr;
 	uint8_t multipath;
 	uint8_t antenaCap;
-} status_t;
+} si4705_tune_status_t;
+
+typedef struct si4705_rsq_status {
+	bool blendint;          // 0 = Blend is within the blend threshold
+	bool multhint;          // 0 = Detected multipath has not exceeded the Multipath high threshold
+	bool multlint;          // 0 = Detected multipath has not fallen below the Multipath low threshold
+	bool snrhint;           // 0 = Received SNR has not exceeded above the SNR high threshold
+	bool snrlint;           // 0 = Received SNR has not fallen below above the SNR low threshold 
+	bool rssihint;          // 0 = RSSI has not exceeded the RSSI high threshold
+	bool rssilint;          // 0 = RSSI has not fallen below the RSSI low threshold
+	bool smute;             // 1 = the soft mute is engaged
+	bool afcrl;             // 1 = if the AFC rails?
+	bool valid;             // 1 = Current channel is valid, and would have been found during a Seek Operation
+	bool pilot;             // 1 = stereo pilot presence
+	uint8_t stblend;        // is only 7 bits max, indicates the % of stereo blend (127 = full stereo, 0 = full mono)
+	uint8_t rssi;           // current receive strength 0-127 db?V
+	uint8_t snr;            // signal to noise metric
+	uint8_t multipath;      // 0 = no multipath, 100 = full multipath
+	int8_t frequency_offset; // signed frequency offset
+} si4705_rsq_status_t;
 
 //Defines
 #define SI4705_RST_PIN               4
@@ -34,7 +55,7 @@ typedef struct status {
 #define SI4705_GET_PROPERTY          0x13
 #define SI4705_SET_CHANNEL           0x20
 #define SI4705_SEEK                  0x21
-#define SI4705_GET_CHANNEL           0x22
+#define SI4705_GET_TUNE_STATUS       0x22
 #define SI4705_GET_RSQ_STATUS        0x23
 #define SI4705_GET_RDS_STATUS        0x24
 
@@ -57,7 +78,8 @@ uint8_t si4705_set_channel(uint16_t channel);
 uint8_t si4705_seek(uint8_t direction);
 uint8_t si4705_set_volume(uint8_t volume);
 uint16_t si4705_get_channel(void);
-void si4705_get_status(status_t *status);
+void si4705_get_tune_status(si4705_tune_status_t *status);
+void si4705_get_rsq_status(si4705_rsq_status_t *status);
 void si4705_get_rdbs(char *program_service, char *radio_text);
 
 uint8_t si4705_get_volume(void);
